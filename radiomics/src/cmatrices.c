@@ -77,7 +77,7 @@ int calculate_glcm(int *image, char *mask, int *size, int *bb, int *strides, int
         if (j != i && mask[j])
         {
           glcm_idx = a + (image[j]-1) * Na + (image[i]-1) * Na * Ng;
-          if (glcm_idx >= glcm_idx_max)
+          if (image[i] <= 0 || image[j] <= 0 || glcm_idx >= glcm_idx_max)
           {
             free(cur_idx);
             return 0; // Index out of range
@@ -169,14 +169,18 @@ int calculate_glszm(int *image, char *mask, int *size, int *bb, int *strides, in
       region = 0;
 
       // Voxel-based: Add the current voxel to the processed stack to reset later.
-      if (processed_idx + 1 >= Ns)  // index out of range
-      {
-        free(cur_idx);
-        free(regionStack);
-        return -1;
-      }
       if (processedStack)
+      {
+        if (processed_idx >= Ns)  // index out of range
+        {
+          free(cur_idx);
+          free(regionStack);
+          return -1;
+        }
+        // ++ after processed_idx --> use first, then increase
+        // (i.e. returned value = x, processed_idx value after statement = x + 1)
         processedStack[processed_idx++] = i;
+      }
 
       // Start growing the region
       regionStack[stackTop++] = i; // Add the current voxel to the stack as 'starting point'
@@ -219,12 +223,14 @@ int calculate_glszm(int *image, char *mask, int *size, int *bb, int *strides, in
             // Voxel-based: Add the current voxel to the processed stack to reset later.
             if (processedStack)
             {
-              if (processed_idx + 1 >= Ns)  // index out of range
+              if (processed_idx >= Ns)  // index out of range
               {
                 free(cur_idx);
                 free(regionStack);
                 return -1;
               }
+              // ++ after processed_idx --> use first, then increase
+              // (i.e. returned value = x, processed_idx value after statement = x + 1)
               processedStack[processed_idx++] = j;
             }
 
@@ -258,10 +264,10 @@ int calculate_glszm(int *image, char *mask, int *size, int *bb, int *strides, in
   // Reset all processed voxels (needed when computing voxel-based)
   if (processedStack)
   {
+    // -- before processed_idx --> then increase first, then use
+    // (i.e. returned value = x - 1, processed_idx value after statement = x - 1)
     while (processed_idx > 0)
-    {
       mask[processedStack[--processed_idx]] = 1;
-    }
     free(processedStack);
   }
 
@@ -282,7 +288,7 @@ int fill_glszm(int *tempData, double *glszm, int Ng, int maxRegion)
   while(tempData[i * 2] > -1)
   {
     glszm_idx = (tempData[i * 2] - 1) * maxRegion + tempData[i * 2 + 1] - 1;
-    if (glszm_idx >= glszm_idx_max) return 0; // Index out of range
+    if (tempData[i * 2] <= 0 || glszm_idx >= glszm_idx_max) return 0; // Index out of range
 
     glszm[glszm_idx]++;
     i++;
@@ -452,7 +458,7 @@ int calculate_glrlm(int *image, char *mask, int *size, int *bb, int *strides, in
           else  // j is not part of the run, end current run and start new one
           {
             glrlm_idx = a + rl * Na + (gl - 1) * Na * Nr;
-            if (glrlm_idx >= glrlm_idx_max)
+            if (gl <= 0 || glrlm_idx >= glrlm_idx_max)
             {
               free(mDims);
               free(mDim_start);
@@ -467,7 +473,7 @@ int calculate_glrlm(int *image, char *mask, int *size, int *bb, int *strides, in
         else if (gl > -1)  // end current run
         {
           glrlm_idx = a + rl * Na + (gl - 1) * Na * Nr;
-          if (glrlm_idx >= glrlm_idx_max)
+          if (gl <= 0 || glrlm_idx >= glrlm_idx_max)
           {
             free(mDims);
             free(mDim_start);
@@ -506,7 +512,7 @@ int calculate_glrlm(int *image, char *mask, int *size, int *bb, int *strides, in
       if (gl > -1)  // end current run (this is the case when the last voxel of the run was included in the mask)
       {
         glrlm_idx = (gl - 1) * Na * Nr + rl * Na + a;
-        if (glrlm_idx >= glrlm_idx_max)
+        if (gl <= 0 || glrlm_idx >= glrlm_idx_max)
         {
           free(mDims);
           free(mDim_start);
@@ -637,7 +643,7 @@ int calculate_ngtdm(int *image, char *mask, int *size, int *bb, int *strides, in
         diff *= -1;  // Get absolute difference
 
       ngtdm_idx = (image[i]-1) * 3;
-      if (ngtdm_idx >= ngtdm_idx_max)
+      if (image[i] <= 0 || ngtdm_idx >= ngtdm_idx_max)
       {
         free(cur_idx);
         return 0; // Index out of range
@@ -734,7 +740,7 @@ int calculate_gldm(int *image, char *mask, int *size, int *bb, int *strides, int
         }
       }
       gldm_idx = dep + (image[i]-1) * (Na * 2 + 1);  // Row_idx (dep) + Col_idx (Gray level * Max dependency)
-      if (gldm_idx >= gldm_idx_max)
+      if (image[i] <= 0 || gldm_idx >= gldm_idx_max)
       {
         free(cur_idx);
         return 0; // Index out of range

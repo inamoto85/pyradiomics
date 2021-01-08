@@ -1,4 +1,4 @@
-# pyradiomics v3.0
+# pyradiomics v3.0.1
 
 ## Build Status
 
@@ -30,11 +30,12 @@ for a region of interest ("segment-based") or to generate feature maps ("voxel-b
 
 **If you publish any work which uses this package, please cite the following publication:**
 *van Griethuysen, J. J. M., Fedorov, A., Parmar, C., Hosny, A., Aucoin, N., Narayan, V., Beets-Tan, R. G. H.,
-Fillon-Robin, J. C., Pieper, S.,  Aerts, H. J. W. L. (2017). Computational Radiomics System to Decode the Radiographic
+Fillion-Robin, J. C., Pieper, S.,  Aerts, H. J. W. L. (2017). Computational Radiomics System to Decode the Radiographic
 Phenotype. Cancer Research, 77(21), e104–e107. https://doi.org/10.1158/0008-5472.CAN-17-0339*
 
 ### Join the Community!
-Join the PyRadiomics community on google groups [here](https://groups.google.com/forum/#!forum/pyradiomics).
+
+Please join the [Radiomics community section of the 3D Slicer Discourse](https://discourse.slicer.org/c/community/radiomics/23).
 
 ### Feature Classes
 Currently supports the following feature classes:
